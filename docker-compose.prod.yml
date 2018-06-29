@@ -1,0 +1,42 @@
+version: '2'
+services:
+
+  #  The Application
+  app:
+    build:
+      context: ./
+      dockerfile: app.dockerfile
+    working_dir: /var/www
+    volumes:
+      - /var/www/storage
+    env_file: '.env'
+    environment:
+      - "DB_HOST=database"
+      - "REDIS_HOST=cache"
+
+  # The Web Server
+  web:
+    build:
+      context: ./
+      dockerfile: web.dockerfile
+      
+    ports:
+      - 8081:80
+  database:
+    image: postgres:9.6
+    environment:
+      - POSTGRES_PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+  # redis
+  cache:
+    image: redis:3.0-alpine
+
+volumes:
+  postgres:
